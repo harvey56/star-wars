@@ -12,11 +12,12 @@ class App extends Component {
     this.state ={
       name:'',
       height:'',
-      mass:''
+      mass:'',
+      birthYear:'',
+      gender: ''
     }
 
     this.listToArray = this.listToArray.bind(this);
-
   }
 
   componentDidMount(){
@@ -36,6 +37,15 @@ class App extends Component {
     return arr;
   }
 
+  handleClickCharacter(character){
+    //console.log(character)
+    this.setState({
+      name: character.name,
+      birthYear: character.birth_year,
+      gender: character.gender
+    })
+  }
+
   render() {  
 
     const { charactersList } = this.props;
@@ -46,7 +56,7 @@ class App extends Component {
     const displayAllCharacters = (
       list.map( (character, idx) => {
         return (
-          <tr key = {idx}>
+          <tr key = {idx} onClick = { this.handleClickCharacter.bind(this,character) }>
             <th scope="row">{ idx }</th>
             <td>{character.name}</td>
             <td>{character.height}</td>
@@ -97,10 +107,18 @@ class App extends Component {
           <div className = "card">
             <h5 className = "card-header">Star Wars character details below</h5>
             <div className = "card-body">
-              <h5 className = "card-title">Name</h5>
-              <p className = "card-text">Birth Year</p>
-              <p className = "card-text">Gender</p>
-              <p className = "card-text">List of films</p>
+              <h5 className = "card-title">
+                Name : {this.state.name}
+              </h5>
+              <p className = "card-text">
+                Birth Year: {this.state.birthYear}
+              </p>
+              <p className = "card-text">
+                Gender: {this.state.gender}
+              </p>
+              <p className = "card-text">
+                List of films
+              </p>
             </div>
           </div>
 
