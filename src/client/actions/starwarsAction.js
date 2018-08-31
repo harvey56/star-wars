@@ -12,9 +12,9 @@ export function SWcharacters(charactersList){
 
 // action creator to fetch the list of all SW characters
 
-export function fetchSWpeople(){
+export function fetchSWpeople(pageID){
 	return function(dispatch){
-		axios.get('https://swapi.co/api/people/')
+		axios.get(`https://swapi.co/api/people/?page=${pageID}`)
 		  .then(function (response) {
 		    dispatch(SWcharacters(response.data.results));;
 		  })

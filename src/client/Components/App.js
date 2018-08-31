@@ -10,6 +10,7 @@ class App extends Component {
     super(props);
 
     this.state ={
+      pageID: 1,
       name:'',
       height:'',
       mass:'',
@@ -18,12 +19,14 @@ class App extends Component {
     }
 
     this.listToArray = this.listToArray.bind(this);
+    this.handleClickNext = this.handleClickNext.bind(this);
+    this.handleClickPrevious = this.handleClickPrevious.bind(this);
   }
 
   componentDidMount(){
     //returns the complete list of SW characters from the API request
     //the list is stored in the "charactersList" variable
-    this.props.fetchSWpeople();
+    this.props.fetchSWpeople(this.state.pageID);
 
   }
 
@@ -42,7 +45,28 @@ class App extends Component {
     this.setState({
       name: character.name,
       birthYear: character.birth_year,
-      gender: character.gender
+      gender: character.gender,
+      films: character.films
+    })
+  }
+
+  showListOfFilms(){
+    //this.props.fetchFilmsList(this.state.name)
+  }
+
+  handleClickPrevious(){
+    this.setState({
+      pageID: this.state.pageID - 1
+    }, () => {
+      this.props.fetchSWpeople(this.state.pageID);
+    })
+  }
+
+  handleClickNext(){
+    this.setState({
+      pageID: this.state.pageID + 1
+    }, () => {
+      this.props.fetchSWpeople(this.state.pageID);
     })
   }
 
@@ -57,7 +81,7 @@ class App extends Component {
       list.map( (character, idx) => {
         return (
           <tr key = {idx} onClick = { this.handleClickCharacter.bind(this,character) }>
-            <th scope="row">{ idx }</th>
+            <th scope="row">{ idx + 1 }</th>
             <td>{character.name}</td>
             <td>{character.height}</td>
             <td>{character.mass}</td>
@@ -99,8 +123,16 @@ class App extends Component {
             </table>
             <nav aria-label="navigation">
               <ul className = "pagination d-flex justify-content-between">
-                <li className = "page-item"><a className = "page-link" href="#">Previous</a></li>
-                <li className = "page-item"><a className = "page-link" href="#">Next</a></li>
+                <li className = "page-item" onClick = {this.handleClickPrevious}>
+                  <a className = "page-link" href="#">
+                    Previous
+                  </a>
+                </li>
+                <li className = "page-item" onClick = {this.handleClickNext}>
+                  <a className = "page-link" href="#">
+                    Next
+                  </a>
+                </li>
               </ul>
             </nav>
           
@@ -117,7 +149,7 @@ class App extends Component {
                 Gender: {this.state.gender}
               </p>
               <p className = "card-text">
-                List of films
+                List of films : showListOfFilms
               </p>
             </div>
           </div>
