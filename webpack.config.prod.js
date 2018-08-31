@@ -1,41 +1,43 @@
 const path = require('path');
 const webpack = require('webpack');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 
 module.exports = {
 
 	plugins: [
-			new HtmlWebPackPlugin({
-		      template: "./dist/index.html",
+		    new MiniCssExtractPlugin({
+		      filename: "[name].css",
+		      chunkFilename: "[id].css"
+		    }),
+		    new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }),
+		    new UglifyJSPlugin(),
+		    new HtmlWebPackPlugin({
+		      template: "./src/index.html",
 		      filename: "./index.html"
 		    })
 	],
 	entry: [
 		"@babel/polyfill",
-		'./src/client/index.js',
-		'webpack-hot-middleware/client'	
+		path.join(__dirname, '/src/client/index.js')
 	],
-	devtool: 'cheap-eval-source-map ',
+	devServer: {
+		contentBase: './dist',
+	},
+	target: 'web',
 	output: {
 		filename: "bundle.js",
-		path: path.resolve(__dirname, '/dist'),
+		path: path.join(__dirname, '/dist'),
 		publicPath: "/"
 	},
-	
 	module: {
 		rules: [
 					{
 						test: /\.(js|jsx)$/,
 						include: path.join(__dirname, '/src'),
 						exclude: /(node_modules)/,
-						use: [
-					      {
-					        loader: 'babel-loader',
-					        options: {
-					          presets: ['es2015', 'react']
-					        }
-					      }
-					    ]
+						loader: ['babel-loader']
 					},
 					{
 						test: /\.css$/,
@@ -51,7 +53,7 @@ module.exports = {
 					},
 					{
 						test: /\.(png|svg|jpg|gif|jpeg)$/,
-						use: 'file-loader'
+						loader: 'url-loader'
 					},
 					{
 						test: /\.(woff|woff2|eot|tff|otf|ttf)$/,

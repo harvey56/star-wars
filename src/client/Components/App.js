@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { fetchSWpeople } from '../actions/starwarsAction';
+import { fetchSWpeople, fetchFilmsList } from '../actions/starwarsAction';
 import { connect } from 'react-redux';
 import axios from 'axios';
 //import '../../../public/css/main.css';
@@ -15,7 +15,9 @@ class App extends Component {
       height:'',
       mass:'',
       birthYear:'',
-      gender: ''
+      gender: '',
+      characterURL: '',
+      filmsList:''
     }
 
     this.listToArray = this.listToArray.bind(this);
@@ -24,7 +26,7 @@ class App extends Component {
   }
 
   componentDidMount(){
-    //returns the complete list of SW characters from the API request
+    //returns the list of SW characters from the API request
     //the list is stored in the "charactersList" variable
     this.props.fetchSWpeople(this.state.pageID);
 
@@ -36,43 +38,48 @@ class App extends Component {
     for(let char of results){
       arr.push(char)
     }
-
     return arr;
   }
 
   handleClickCharacter(character){
-    //console.log(character)
     this.setState({
       name: character.name,
       birthYear: character.birth_year,
       gender: character.gender,
-      films: character.films
+      films: character.films,
+      characterURL: character.url
+    }, () => {
+      //this.props.fetchFilmsList is called in the setState callback so I can have the right state for characterURL
+      //this.state.filmsList contains the list of film titles associated to its characterURL
+      this.props.fetchFilmsList(this.state.characterURL).then( res => this.setState({ filmsList: this.props.moviesList }))
     })
-  }
-
-  showListOfFilms(){
-    //this.props.fetchFilmsList(this.state.name)
+    
   }
 
   handleClickPrevious(){
-    this.setState({
-      pageID: this.state.pageID - 1
-    }, () => {
-      this.props.fetchSWpeople(this.state.pageID);
-    })
+    if (this.state.pageID >= 2){
+      this.setState({
+        pageID: this.state.pageID - 1
+      }, () => {
+        this.props.fetchSWpeople(this.state.pageID);
+      })
+    }
   }
 
   handleClickNext(){
-    this.setState({
-      pageID: this.state.pageID + 1
-    }, () => {
-      this.props.fetchSWpeople(this.state.pageID);
-    })
+    if (this.state.pageID <= 10){
+      this.setState({
+        pageID: this.state.pageID + 1
+      }, () => {
+        this.props.fetchSWpeople(this.state.pageID);
+      })
+    }
   }
 
   render() {  
 
     const { charactersList } = this.props;
+    const { filmsList } = this.state || [];
 
     //list is an array of objects; each object of the array contains the details of a SW character
     const list = this.listToArray(charactersList);
@@ -89,6 +96,18 @@ class App extends Component {
         )
       })
     )
+
+    //filmsList is an object somehow, so I convert it to an Array to which I can apply the map method
+    let films = this.listToArray(filmsList);
+
+    const displayAllFilms = (
+      films.map( (film, idx) => {
+        return(
+          <li key = {idx}>{film}</li>
+        )
+      })
+    )
+    
 
     return (
       <div>
@@ -149,8 +168,11 @@ class App extends Component {
                 Gender: {this.state.gender}
               </p>
               <p className = "card-text">
-                List of films : showListOfFilms
+                List of films :
               </p>
+              <ul>
+                { displayAllFilms }
+              </ul>
             </div>
           </div>
 
@@ -165,7 +187,8 @@ class App extends Component {
 function mapStateToProps(state){
   return {
     charactersList: state.StarWars.charactersList,
+    moviesList: state.StarWars.moviesList
   }
 }
 
-export default connect(mapStateToProps, { fetchSWpeople })(App);
+export default connect(mapStateToProps, { fetchSWpeople, fetchFilmsList })(App);

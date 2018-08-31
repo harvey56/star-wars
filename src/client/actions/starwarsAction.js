@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { FETCH_SW_CHARACTERS } from './types';
+import { FETCH_SW_CHARACTERS, FETCH_SW_MOVIES } from './types';
 
-// create new poll action
+// list of movie characters
 
 export function SWcharacters(charactersList){
 	return{
@@ -22,4 +22,34 @@ export function fetchSWpeople(pageID){
 		    console.log(error);
 		  });
 	}
+}
+
+// list of movie titles
+
+export function SWmovies(moviesList){
+	return{
+		type: FETCH_SW_MOVIES,
+		moviesList
+	}
+}
+
+// action creator to fetch the list of all movies a specific character has played in
+
+export function fetchFilmsList(characterURL){
+	return async function(dispatch){
+
+		const titlesList = [];
+		const filmsURLs = await axios.get(characterURL).then( res => res.data.films );
+
+		//const film1 = await axios.get(filmsURLs[0]).then( res => res.data.title)
+		const filmList = await Promise.all(filmsURLs.map(async film => {
+			let filmTitle = await axios.get(film).then( res => res.data.title);
+			titlesList.push(filmTitle);			
+		}))
+
+		//the titlesList array will contain the list of movie titles the character refered to in characterURL has played in
+		dispatch(SWmovies(titlesList));
+						
+	} 
+	
 }
